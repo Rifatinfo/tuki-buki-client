@@ -1,7 +1,9 @@
+import ProductAddPage from "@/components/modules/addProduct/ProductAdd";
+
 const addProduct = () => {
   return (
     <div>
-        <p>add Product</p>
+        <ProductAddPage/>
     </div>
   )
 }

@@ -10,8 +10,7 @@ import { setCookie } from "./tokenHandlers";
 import { zodValidator } from "@/lib/zodValidator";
 import { serverFetch } from "@/lib/server-fetch";
 import { getDefaultDashboardRoute, isValidRedirectForRole } from "@/lib/auth-utils";
-// import { setCookie } from "./tokenHandlers";
-// import { getDefaultDashboardRoute, isValidRedirectForRole } from "@/lib/auth-utils";
+
 
 export const loginUser = async (_currentState: any, formData: any): Promise<any> => {
     try {
@@ -46,7 +45,6 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
         });
 
         const result = await res.json();
-        console.log("resssssssssss : ", res, result);
         const setCookieHeaders = res.headers.getSetCookie();
 
         if (setCookieHeaders && setCookieHeaders.length > 0) {
@@ -117,18 +115,18 @@ export const loginUser = async (_currentState: any, formData: any): Promise<any>
         if (!result.success) {
             throw new Error("Login Failed");
         }
-        if (redirectTo && result.data.needPasswordChange) {
-            const requestedPath = redirectTo.toString();
-            if (isValidRedirectForRole(requestedPath, userRole)) {
-                redirect(`/reset-password?redirect=${requestedPath}`);
-            } else {
-                redirect("/reset-password");
-            }
-        }
+        // if (redirectTo && result.data.needPasswordChange) {
+        //     const requestedPath = redirectTo.toString();
+        //     if (isValidRedirectForRole(requestedPath, userRole)) {
+        //         redirect(`/reset-password?redirect=${requestedPath}`);
+        //     } else {
+        //         redirect("/reset-password");
+        //     }
+        // }
 
-        if (result.data.needPasswordChange) {
-            redirect("/reset-password");
-        }
+        // if (result.data.needPasswordChange) {
+        //     redirect("/reset-password");
+        // }
 
         let redirectPath = getDefaultDashboardRoute(userRole);
 

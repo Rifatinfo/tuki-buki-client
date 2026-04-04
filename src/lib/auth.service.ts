@@ -5,7 +5,7 @@ import { parse } from "cookie";
 import { zodValidator } from "./zodValidator";
 import { forgotPasswordSchema } from "@/zod/user.validation";
 import { changePasswordSchema, resetPasswordSchema } from "@/zod/auth.validation";
-import jwt from "jsonwebtoken";
+
 
 export async function getNewAccessToken() {
     try {
