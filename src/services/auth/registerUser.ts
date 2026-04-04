@@ -7,6 +7,7 @@
 import { zodValidator } from "@/lib/zodValidator";
 import { signUpSchema } from "@/zod/user.validation";
 import { loginUser } from "./loginUser";
+import { serverFetch } from "@/lib/server-fetch";
 
 export const registerUser = async (_currentState: any, formData: FormData): Promise<any> => {
     try {
@@ -31,13 +32,20 @@ export const registerUser = async (_currentState: any, formData: FormData): Prom
         const newFormData = new FormData();
         newFormData.append("data", JSON.stringify(registerData));
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/user/create-customer`, {
-            method: "POST",
-            body: newFormData, // FormData
-        });
+        // const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/user/create-customer`, {
+        //     method: "POST",
+        //     body: newFormData, // FormData
+        // });
+        if (formData.get("file")) {
+            newFormData.append("file", formData.get("file") as Blob);
+        }
+
+        const res = await serverFetch.post("/api/v1/user/create-customer", {
+            body: newFormData,
+        })
         const result = await res.json();
         console.log(result, res);
-        
+
         if (result.success) {
             await loginUser(_currentState, formData);
         }
