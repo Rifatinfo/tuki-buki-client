@@ -13,8 +13,18 @@ import { MegaMenu } from './MegaMenu'
 import { MobileMenu } from './MobileMenu'
 import Link from 'next/link';
 
-
-export function Header() {
+type HeaderProps = {
+  sidebarOpen: boolean;
+  onToggleSidebar: () => void;
+  darkMode: boolean;
+  onToggleTheme: () => void;
+};
+export function Header({
+  sidebarOpen,
+  onToggleSidebar,
+  darkMode,
+  onToggleTheme,
+}: HeaderProps) {
   const [activeCategory, setActiveCategory] = useState<MenuCategory | null>(
     null,
   )
