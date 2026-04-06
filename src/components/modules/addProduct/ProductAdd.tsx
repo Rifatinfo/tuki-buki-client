@@ -13,6 +13,7 @@ import { Toast } from "@/components/shared/Toast/Toast"
 import { serverFetch } from "@/lib/server-fetch"
 import ImageUploadSection from "./ImageUploadSection"
 import CategoriesSection from "./CategoriesSection"
+import Spinner from "@/components/shared/Spinner"
 
 export default function ProductAddPage() {
   const [basicDetails, setBasicDetails] = useState({
@@ -29,12 +30,16 @@ export default function ProductAddPage() {
   const [variants, setVariants] = useState<Variant[]>([])
   const [additionalInfo, setAdditionalInfo] = useState<InfoItem[]>([])
   const [tags, setTags] = useState<string[]>([])
-  const [images, setImages] = useState<any[]>([])
   const [isSaving, setIsSaving] = useState(false)
 
+  // Image states
+  const [sizeGuideImage, setSizeGuideImage] = useState<File | null>(null)
+  const [thumbnailImage, setThumbnailImage] = useState<File | null>(null)
+  const [galleryImages, setGalleryImages] = useState<File[]>([])
+  console.log("sizeGuideImage", "thumbnailImage", "galleryImages");
   const [categoryPayload, setCategoryPayload] = useState<{
-    categories: { categoryId: string; name: string }[]
-    subCategories: { subCategoryId: string; name: string }[]
+    categories: { categoryId: string }[]
+    subCategories: { subCategoryId: string }[]
   }>({
     categories: [],
     subCategories: [],
@@ -62,7 +67,7 @@ export default function ProductAddPage() {
       Toast.fire({ icon: "warning", title: "Short Description is required!" });
       return false;
     }
-    return true; 
+    return true;
   }
 
   const resetForm = () => {
@@ -79,7 +84,9 @@ export default function ProductAddPage() {
     setVariants([])
     setAdditionalInfo([])
     setTags([])
-    setImages([])
+    setGalleryImages([])
+    setThumbnailImage(null)
+    setSizeGuideImage(null)
     setCategoryPayload({
       categories: [],
       subCategories: [],
@@ -87,71 +94,72 @@ export default function ProductAddPage() {
   }
 
   const handleSave = async () => {
-    if (!validateForm()) return; 
+    if (!validateForm()) return;
 
     setIsSaving(true);
     try {
-  // Prepare payload
-  const payload = {
-    name: basicDetails.name,
-    sku: basicDetails.sku,
-    regularPrice: Number(basicDetails.regularPrice),
-    salePrice: Number(basicDetails.salePrice),
-    stockQuantity: basicDetails.stockQuantity,
-    stockStatus: basicDetails.stockStatus,
-    shortDescription: basicDetails.shortDescription,
-    fullDescription: basicDetails.fullDescription,
+      // Prepare payload
+      const payload = {
+        name: basicDetails.name,
+        sku: basicDetails.sku,
+        regularPrice: Number(basicDetails.regularPrice),
+        salePrice: Number(basicDetails.salePrice),
+        stockQuantity: basicDetails.stockQuantity,
+        stockStatus: basicDetails.stockStatus,
+        shortDescription: basicDetails.shortDescription,
+        fullDescription: basicDetails.fullDescription,
 
-    categories: categoryPayload.categories.map(c => c.name),
-    subCategories: categoryPayload.subCategories.map(s => s.name),
+        categories: categoryPayload.categories.map(c => c.categoryId),
+        subCategories: categoryPayload.subCategories.map(s => s.subCategoryId),
 
-    tags,
+        tags,
 
-    variants: variants.map(v => ({
-      color: v.color,
-      size: v.size,
-      quantity: Number(v.quantity),
-    })),
+        variants: variants.map(v => ({
+          color: v.color,
+          size: v.size,
+          quantity: Number(v.quantity),
+        })),
 
-    additionalInformation: additionalInfo,
-  };
+        additionalInformation: additionalInfo,
+      };
 
-  // Convert payload and files into FormData
-  const formData = new FormData();
-  formData.append("data", JSON.stringify(payload));
 
-  images.forEach(img => {
-    if (img.file) formData.append("file", img.file);
-  });
+      const formData = new FormData();
+      formData.append("data", JSON.stringify(payload));
 
-  //  Use serverFetch.post instead of fetch
-  const res = await serverFetch.post("/api/v1/product/create", {
-    credentials: "include",
-    body: formData,
-  });
 
-  const data = await res.json();
+      if (thumbnailImage) formData.append("thumbnailImage", thumbnailImage);
+      if (sizeGuideImage) formData.append("sizeGuidImage", sizeGuideImage); // <-- fixed typo
+      galleryImages.forEach(img => formData.append("file", img)); // <-- match backend
 
-  if (!res.ok) throw new Error(data?.message || "Create failed");
 
-  // Success toast
-  Toast.fire({
-    icon: "success",
-    title: "Product saved successfully!",
-  });
+      const res = await serverFetch.post("/api/v1/product/create", {
+        credentials: "include",
+        body: formData,
+      });
+      const data = await res.json();
+      console.log("data product : ", data);
 
-  // Reset form
-  resetForm();
-} catch (error: any) {
-  console.error(error);
+      if (!res.ok) throw new Error(data?.message || "Create failed");
 
-  Toast.fire({
-    icon: "error",
-    title: error.message || "Failed to save product.",
-  });
-} finally {
-  setIsSaving(false);
-}
+      //================== Success toast =====================//
+      Toast.fire({
+        icon: "success",
+        title: "Product saved successfully!",
+      });
+
+      //================== Reset form =======================// 
+      resetForm();
+    } catch (error: any) {
+      console.error(error);
+
+      Toast.fire({
+        icon: "error",
+        title: "Failed to save product.",
+      });
+    } finally {
+      setIsSaving(false);
+    }
   }
 
   return (
@@ -167,8 +175,12 @@ export default function ProductAddPage() {
           <Button variant="outline">
             <Eye className="h-4 w-4" /> Preview
           </Button>
-          <Button onClick={handleSave} disabled={isSaving}>
+          <Button onClick={handleSave} className="cursor-pointer">
+            {isSaving && (
+              <Spinner />
+            )}
             <Save className="h-4 w-4" /> Save
+
           </Button>
         </div>
       </header>
@@ -188,8 +200,13 @@ export default function ProductAddPage() {
           </div>
 
           <div className="lg:col-span-3 space-y-8">
-            <ImageUploadSection />
-            <CategoriesSection />
+            <ImageUploadSection sizeGuideImage={sizeGuideImage}
+              setSizeGuideImage={setSizeGuideImage}
+              thumbnailImage={thumbnailImage}
+              setThumbnailImage={setThumbnailImage}
+              galleryImages={galleryImages}
+              setGalleryImages={setGalleryImages} />
+            <CategoriesSection onChange={setCategoryPayload} />
           </div>
         </div>
       </main>

@@ -1,54 +1,199 @@
-import React, { useState, useRef } from 'react'
+'use client';
+import { useState, useRef, useEffect } from 'react'
 import {
     X,
     Plus,
     Tag,
 } from 'lucide-react'
 import { motion } from 'framer-motion'
+import { serverFetch } from '@/lib/server-fetch';
+import ConfirmDialog from '@/components/shared/ConfirmDialog';
+import { Toast } from '@/components/shared/Toast/Toast';
+import Spinner from '@/components/shared/Spinner';
+import ListSkeleton from '@/components/shared/skeleton/ListSkeleton';
 
-const CategoriesSection = () => {
+type Category = {
+    id: string;
+    name: string;
+}
+
+type Props = {
+    onChange: (data: {
+        categories: { categoryId: string }[];
+        subCategories: { subCategoryId: string }[];
+    }) => void;
+};
+const CategoriesSection = ({ onChange }: Props) => {
     //============== Categories ===============//
-    const [categories, setCategories] = useState<string[]>([]);
+    const [categories, setCategories] = useState<Category[]>([]);
     const [newCategory, setNewCategory] = useState('');
     const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
     //=============== Subcategories ============// 
-    const [subcategories, setSubcategories] = useState<string[]>([]);
+    const [subcategories, setSubcategories] = useState<Category[]>([]);
     const [newSubcategory, setNewSubcategory] = useState('');
-    const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>(
-        [])
-    const addCategory = () => {
-        if (newCategory.trim() && !categories.includes(newCategory.trim())) {
-            setCategories([...categories, newCategory.trim()])
-            setNewCategory('')
+    const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
+
+
+    // ================= loading ================// 
+    const [isAddingCategory, setIsAddingCategory] = useState(false);
+    const [isAddingSubCategory, setIsSubAddingCategory] = useState(false);
+    const [loadingData, setLoadingData] = useState(true);
+    // ================= FETCH ================= //
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                setLoadingData(true);
+
+                const catRes = await serverFetch.get("/api/v1/product/category");
+                const catData = await catRes.json();
+                setCategories(catData.data || []);
+
+                const subRes = await serverFetch.get("/api/v1/product/sub-category");
+                const subData = await subRes.json();
+                setSubcategories(subData.data || []);
+            } catch (error) {
+                console.error(error);
+            } finally {
+                setLoadingData(false);
+            }
+        };
+
+        loadData();
+    }, []);
+
+    // ================= SEND ================= //
+    useEffect(() => {
+        onChange({
+            categories: selectedCategories.map(id => ({ categoryId: id })),
+            subCategories: selectedSubcategories.map(id => ({ subCategoryId: id })),
+        });
+    }, [selectedCategories, selectedSubcategories]);
+
+
+    const addCategory = async () => {
+        if (!newCategory.trim()) return;
+        try {
+            setIsAddingCategory(true);
+            const res = await serverFetch.post("/api/v1/product/create-category", {
+                body: JSON.stringify({ name: newCategory }),
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+            });
+            const data = await res.json();
+            setCategories(prev => [...prev, data.data]);
+            setNewCategory("");
+        } catch (error) {
+            console.error("Failed to add category");
+            Toast.fire({
+                icon: "error",
+                title: "Failed to category",
+            });
+        } finally {
+            setIsAddingCategory(false); // stop loading
         }
     }
-    const addSubcategory = () => {
-        if (
-            newSubcategory.trim() &&
-            !subcategories.includes(newSubcategory.trim())
-        ) {
-            setSubcategories([...subcategories, newSubcategory.trim()])
-            setNewSubcategory('')
+
+    const addSubcategory = async () => {
+        if (!newSubcategory.trim()) return;
+
+        try {
+            setIsSubAddingCategory(true);
+            const res = await serverFetch.post("/api/v1/product/create-sub-category", {
+                body: JSON.stringify({ name: newSubcategory }),
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+            });
+
+            const data = await res.json();
+            setSubcategories(prev => [...prev, data.data]);
+            setNewSubcategory("");
+        } catch (error) {
+            console.error("Failed to add Subcategory");
+            Toast.fire({
+                icon: "error",
+                title: "Failed to Subcategory",
+            });
+        } finally {
+            setIsSubAddingCategory(false);
         }
-    }
-    const toggleCategory = (cat: string) => {
-        setSelectedCategories((prev) =>
-            prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat],
-        )
-    }
-    const toggleSubcategory = (sub: string) => {
-        setSelectedSubcategories((prev) =>
-            prev.includes(sub) ? prev.filter((s) => s !== sub) : [...prev, sub],
-        )
-    }
-    const removeCategory = (cat: string) => {
-        setCategories(categories.filter((c) => c !== cat))
-        setSelectedCategories(selectedCategories.filter((c) => c !== cat))
-    }
-    const removeSubcategory = (sub: string) => {
-        setSubcategories(subcategories.filter((s) => s !== sub))
-        setSelectedSubcategories(selectedSubcategories.filter((s) => s !== sub))
-    }
+    };
+    // ================= TOGGLE ================= //
+    const toggleCategory = (id: string) => {
+        setSelectedCategories(prev =>
+            prev.includes(id)
+                ? prev.filter(c => c !== id)
+                : [...prev, id]
+        );
+    };
+
+    const toggleSubcategory = (id: string) => {
+        setSelectedSubcategories(prev =>
+            prev.includes(id)
+                ? prev.filter(s => s !== id)
+                : [...prev, id]
+        );
+    };
+
+
+    // ================= DELETE =================
+    const removeCategory = async (id: string) => {
+        try {
+            const res = await serverFetch.delete(`/api/v1/product/category/${id}`,
+                { credentials: "include", }
+            );
+            const result = await res.json();
+            if (res.ok && result.success) {
+                setCategories(prev => prev.filter(c => c.id !== id));
+                setSelectedCategories(prev => prev.filter(c => c !== id));
+
+                Toast.fire({
+                    icon: "success",
+                    title: "Category deleted successfully",
+                });
+            } else {
+                Toast.fire({
+                    icon: "error",
+                    title: "Failed to delete category",
+                });
+            }
+        } catch (err) {
+            console.error(err);
+            Toast.fire({
+                icon: "error",
+                title: "Something went wrong!",
+            });
+        }
+    };
+    const removeSubcategory = async (id: string) => {
+        try {
+            const res = await serverFetch.delete(`/api/v1/product/sub-category/${id}`, {
+                credentials: "include"
+            });
+            const result = await res.json();
+
+            if (res.ok && result.success) {
+                setSubcategories(prev => prev.filter(s => s.id !== id));
+                setSelectedSubcategories(prev => prev.filter(s => s !== id));
+
+                Toast.fire({
+                    icon: "success",
+                    title: "Category deleted successfully",
+                });
+            } else {
+                Toast.fire({
+                    icon: "error",
+                    title: "Failed to delete category",
+                });
+            }
+        } catch (err) {
+            console.error(err);
+            Toast.fire({
+                icon: "error",
+                title: "Something went wrong!",
+            });
+        }
+    };
+
     return (
         <div>
             {/* Categories */}
@@ -69,51 +214,48 @@ const CategoriesSection = () => {
                 <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
                     <Tag className="w-4 h-4 text-[#FF5000]" /> Categories
                 </h3>
+
                 <div className="flex gap-2 mb-3">
                     <input
-                        type="text"
                         value={newCategory}
                         onChange={(e) => setNewCategory(e.target.value)}
-                        onKeyDown={(e) =>
-                            e.key === 'Enter' && (e.preventDefault(), addCategory())
-                        }
                         placeholder="New category..."
-                        className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF5000]/30 focus:border-[#FF5000]"
+                        className="flex-1 px-3 py-2 border rounded-lg"
                     />
-                    <button
-                        onClick={addCategory}
-                        className="px-3 py-2 bg-[#FF5000] text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors"
-                    >
-                        <Plus className="w-4 h-4" />
+                    <button onClick={addCategory} disabled={isAddingCategory} className="bg-orange-500 text-white px-3 rounded cursor-pointer">
+                        {isAddingCategory ? (
+                            <Spinner size={20} />
+                        ) : (
+                            <Plus className="w-5 h-5" />
+                        )}
                     </button>
                 </div>
-                <div className="space-y-1.5 max-h-40 overflow-y-auto">
-                    {categories.map((cat) => (
-                        <div
-                            key={cat}
-                            className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-slate-50 transition-colors group"
-                        >
+
+                {loadingData ? (
+                    <ListSkeleton count={6} />
+                ) : (
+                    categories.map(cat => (
+                        <div key={cat.id} className="flex items-center gap-2 group">
                             <input
                                 type="checkbox"
-                                checked={selectedCategories.includes(cat)}
-                                onChange={() => toggleCategory(cat)}
-                                className="w-4 h-4 rounded border-slate-300 accent-[#FF5000] cursor-pointer"
+                                checked={selectedCategories.includes(cat.id)}
+                                onChange={() => toggleCategory(cat.id)}
                             />
-                            <span
-                                className={`text-sm font-medium flex-1 cursor-pointer'}`}
-                                onClick={() => toggleCategory(cat)}
-                            >
-                                {cat}
-                            </span>
-                            <button
-                                onClick={() => removeCategory(cat)}
-                                className="p-1 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all"
-                            >
-                                <X className="w-3.5 h-3.5" />
-                            </button>
+                            <span className="flex-1">{cat.name}</span>
+
+                            <ConfirmDialog
+                                trigger={
+                                    <button className="opacity-0 group-hover:opacity-100 text-red-500 cursor-pointer">
+                                        <X />
+                                    </button>
+                                }
+                                title="Delete Category?"
+                                description="This will permanently delete the category."
+                                onConfirm={() => removeCategory(cat.id)}
+                            />
                         </div>
-                    ))}
-                </div>
+                    ))
+                )}
             </motion.div>
 
             {/* Sub Categories */}
@@ -136,49 +278,45 @@ const CategoriesSection = () => {
                 </h3>
                 <div className="flex gap-2 mb-3">
                     <input
-                        type="text"
                         value={newSubcategory}
                         onChange={(e) => setNewSubcategory(e.target.value)}
-                        onKeyDown={(e) =>
-                            e.key === 'Enter' && (e.preventDefault(), addSubcategory())
-                        }
                         placeholder="New subcategory..."
-                        className="flex-1 px-3 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF5000]/30 focus:border-[#FF5000]"
+                        className="flex-1 px-3 py-2 border rounded-lg"
                     />
-                    <button
-                        onClick={addSubcategory}
-                        className="px-3 py-2 bg-[#FF5000] text-white rounded-lg text-sm font-medium hover:bg-orange-600 transition-colors"
-                    >
-                        <Plus className="w-4 h-4" />
+                    <button onClick={addSubcategory} className="bg-orange-500 text-white px-3 rounded cursor-pointer">
+                        {isAddingSubCategory ? (
+                            <Spinner size={20} />
+                        ) : (
+                            <Plus className="w-5 h-5" />
+                        )}
                     </button>
                 </div>
-                <div className="space-y-1.5 max-h-40 overflow-y-auto">
-                    {subcategories.map((sub) => (
-                        <div
-                            key={sub}
-                            className="flex items-center gap-2.5 px-2 py-1.5 rounded-lg hover:bg-slate-50 transition-colors group"
-                        >
+
+                {loadingData ? (
+                    <ListSkeleton count={6} />
+                ) : (
+                    subcategories.map(sub => (
+                        <div key={sub.id} className="flex items-center gap-2 group">
                             <input
                                 type="checkbox"
-                                checked={selectedSubcategories.includes(sub)}
-                                onChange={() => toggleSubcategory(sub)}
-                                className="w-4 h-4 rounded border-slate-300 accent-[#FF5000] cursor-pointer"
+                                checked={selectedSubcategories.includes(sub.id)}
+                                onChange={() => toggleSubcategory(sub.id)}
                             />
-                            <span
-                                className={`text-sm font-medium flex-1 cursor-pointer}`}
-                                onClick={() => toggleSubcategory(sub)}
-                            >
-                                {sub}
-                            </span>
-                            <button
-                                onClick={() => removeSubcategory(sub)}
-                                className="p-1 text-slate-300 hover:text-rose-500 opacity-0 group-hover:opacity-100 transition-all"
-                            >
-                                <X className="w-3.5 h-3.5" />
-                            </button>
+                            <span className="flex-1">{sub.name}</span>
+
+                            <ConfirmDialog
+                                trigger={
+                                    <button className="opacity-0 group-hover:opacity-100 text-red-500 cursor-pointer">
+                                        <X />
+                                    </button>
+                                }
+                                title="Delete Subcategory?"
+                                description="This will permanently delete the subcategory."
+                                onConfirm={() => removeSubcategory(sub.id)}
+                            />
                         </div>
-                    ))}
-                </div>
+                    ))
+                )}
             </motion.div>
         </div>
     )

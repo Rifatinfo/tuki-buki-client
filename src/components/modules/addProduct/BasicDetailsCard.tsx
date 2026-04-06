@@ -37,7 +37,7 @@ interface BasicDetailsProps {
 export function BasicDetailsCard({ data, onChange }: BasicDetailsProps) {
   return (
     <Card title="Basic Information">
-      <div className="space-y-6 px-2">
+      <div className="space-y-4 px-2">
 
         {/* Product Name */}
         <Field label="Product Name">
@@ -131,13 +131,13 @@ export function BasicDetailsCard({ data, onChange }: BasicDetailsProps) {
         <Field label="Full Description">
           <Textarea
             rows={6}
+            className="h-28"
             value={data.fullDescription}
             onChange={(e) =>
               onChange("fullDescription", e.target.value)
             }
           />
         </Field>
-
       </div>
     </Card>
   )
