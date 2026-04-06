@@ -33,9 +33,9 @@ export function VariantsSection({ variants, onChange }: VariantsSectionProps) {
       variants.map((v) =>
         v.id === id
           ? {
-              ...v,
-              [field]: value,
-            }
+            ...v,
+            [field]: value,
+          }
           : v,
       ),
     )
@@ -78,15 +78,16 @@ export function VariantsSection({ variants, onChange }: VariantsSectionProps) {
           variant="outline"
           size="sm"
           onClick={addVariant}
-        //   leftIcon={<Plus className="h-4 w-4" />}
         >
           Add Variant
         </Button>
       </div>
-      <p className="text-sm text-slate-600 mb-4 px-2">Manage available options like color and size</p>
+      <p className="text-sm text-slate-600 mb-4 px-8">Manage available options like color and size</p>
       {variants.length === 0 ? (
-        <div className="text-center py-8 text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-300">
-          No variants added yet. Click &#34;Add Variant&#34; to start.
+        <div className='px-2'>
+          <div className="text-center py-8 text-slate-500 bg-slate-50 rounded-lg border border-dashed border-slate-300 ">
+            No variants added yet. Click &#34;Add Variant&#34; to start.
+          </div>
         </div>
       ) : (
         <div className="overflow-x-auto px-2">

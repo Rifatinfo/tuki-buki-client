@@ -77,8 +77,7 @@ export function AdditionalInfoSection({
                     variant="secondary"
                     size="sm"
                     onClick={addItem}
-                    //   leftIcon={<Plus className="h-4 w-4" />}
-                    className="w-full border-dashed border-slate-300 bg-slate-50 hover:bg-slate-100"
+                    className="w-full border-dashed border-slate-300 bg-slate-50 hover:bg-slate-100 py-5 cursor-pointer"
                 >
                     <Plus className="h-4 w-4 mr-2" />
                     Add Custom Field
