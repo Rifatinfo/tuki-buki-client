@@ -1,4 +1,4 @@
-import { verifyAccessToken } from "@/components/sidebar/jwtHanlders";
+import { verifyAccessToken } from "@/lib/jwtHanlders";
 import { deleteCookie, getCookie, setCookie } from "@/services/auth/tokenHandlers";
 import { serverFetch } from "./server-fetch";
 import { parse } from "cookie";

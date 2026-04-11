@@ -42,7 +42,7 @@ export function BasicDetailsCard({ data, onChange }: BasicDetailsProps) {
         {/* Product Name */}
         <Field label="Product Name">
           <Input
-            value={data.name}
+            value={data.name ?? ""}
             onChange={(e) => onChange("name", e.target.value)}
           />
         </Field>

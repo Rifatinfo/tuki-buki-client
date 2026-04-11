@@ -2,10 +2,11 @@ import {
   LayoutDashboard,
   BarChart3,
   Package,
+  Plus ,
   ShoppingCart,
   Users,
   Settings,
-  HelpCircle,
+  Store ,
   Search,
 } from "lucide-react";
 
@@ -37,9 +38,16 @@ export const NAV_MAIN: NavItem[] = [
   {
     id: "products",
     label: "Add Products",
-    icon: Package,
+    icon: Plus ,
     roles: ["ADMIN"],
     path: "/dashboard/addProduct"
+  },
+  {
+    id: "all-products",
+    label: "All Products",
+    icon: Store  ,
+    roles: ["ADMIN"],
+    path: "/dashboard/all-products"
   },
   {
     id: "orders",

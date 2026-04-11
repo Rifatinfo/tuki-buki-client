@@ -14,6 +14,18 @@ const nextConfig: NextConfig = {
         hostname: "images.unsplash.com",
         pathname: "/**",
       },
+      // {
+      //   protocol: "http",
+      //   hostname: "localhost",
+      //   port: "5000",
+      //   pathname: "/api/v1/**",
+      // },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '5000',
+        pathname: '/uploads/**', // matches all images under /uploads/
+      },
       {
         protocol: "https",
         hostname: "image.tmdb.org",
