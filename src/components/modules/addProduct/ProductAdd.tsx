@@ -15,6 +15,7 @@ import ImageUploadSection from "./ImageUploadSection"
 import CategoriesSection from "./CategoriesSection"
 import Spinner from "@/components/shared/Spinner"
 
+
 export default function ProductAddPage() {
   const [basicDetails, setBasicDetails] = useState({
     name: "",
@@ -44,6 +45,11 @@ export default function ProductAddPage() {
     categories: [],
     subCategories: [],
   });
+
+  // ==================== Discount ======================//
+  
+  // console.log("discount", discount);
+
   const validateForm = () => {
     if (!basicDetails.name) {
       Toast.fire({ icon: "warning", title: "Product Name is required!" });
@@ -121,6 +127,7 @@ export default function ProductAddPage() {
         })),
 
         additionalInformation: additionalInfo,
+        
       };
 
 

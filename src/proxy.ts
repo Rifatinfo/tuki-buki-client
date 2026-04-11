@@ -6,7 +6,7 @@ import { getDefaultDashboardRoute, getRouteOwner, isAuthRoute, UserRole } from '
 import { deleteCookie, getCookie } from './services/auth/tokenHandlers';
 import { getNewAccessToken } from './lib/auth.service';
 import { getUserInfo } from './components/auth/getUserInfo';
-import { verifyResetPasswordToken } from './components/sidebar/jwtHanlders';
+import { verifyResetPasswordToken } from './lib/jwtHanlders';
 
 
 
