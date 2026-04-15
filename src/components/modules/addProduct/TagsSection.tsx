@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
+import { X } from 'lucide-react';
 interface TagsSectionProps {
   tags: string[]
   onChange: (tags: string[]) => void
@@ -31,7 +32,7 @@ export function TagsSection({ tags, onChange }: TagsSectionProps) {
       <div className="space-y-4 mt-4 px-2">
         <Input
           placeholder="Type and press Enter to add..."
-        //   icon={<TagIcon className="h-4 w-4" />}
+
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyDown}
@@ -41,14 +42,14 @@ export function TagsSection({ tags, onChange }: TagsSectionProps) {
           {tags.length === 0 && (
             <p className="text-sm text-slate-400 italic">No tags added yet</p>
           )}
-          {tags.map((tag) => (
-            <Badge key={tag}>
-              {tag}
+          {tags.map((tag: any, idx: number) => (
+            <Badge key={tag.id || idx || tag}>
+              {tag.name}
               <button
                 onClick={() => removeTag(tag)}
-                className="ml-1 hover:text-red-500"
+                className="ml-1 hover:text-red-500 cursor-pointer"
               >
-                ×
+                <X size={16} />
               </button>
             </Badge>
           ))}

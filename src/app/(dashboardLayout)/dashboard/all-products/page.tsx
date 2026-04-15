@@ -252,6 +252,7 @@ import TablePagination from "@/components/shared/pagination/TablePagination";
 import { getProducts } from "@/services/product/getProducts";
 import { queryStringFormatter } from "@/lib/formatters";
 import Link from 'next/link';
+import ProductFilters from '@/components/modules/FilterAndSearch/ProductFilters';
 
 
 const ProductsPage = async ({
@@ -297,28 +298,7 @@ const ProductsPage = async ({
                 </div>
 
                 {/* Filters & Search */}
-                <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-center">
-                    <div className="relative w-full md:w-96">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                        <input
-                            type="text"
-                            placeholder="Search products by name or SKU..."
-            
-                            
-                            className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 text-sm focus:outline-none focus:ring-2 focus:ring-[#FF5000]/30 focus:border-[#FF5000] transition-all"
-                        />
-                    </div>
-                    <div className="flex items-center gap-3 w-full md:w-auto">
-                        <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors w-full md:w-auto justify-center">
-                            <Filter className="w-4 h-4" /> Category
-                            <ChevronDown className="w-3 h-3 ml-1 text-slate-400" />
-                        </button>
-                        <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium text-slate-700 hover:bg-slate-50 transition-colors w-full md:w-auto justify-center">
-                            Sort by: Newest
-                            <ChevronDown className="w-3 h-3 ml-1 text-slate-400" />
-                        </button>
-                    </div>
-                </div>
+                <ProductFilters/>
 
                 <CustomTable
                     headers={<ProductTableHeader />}
