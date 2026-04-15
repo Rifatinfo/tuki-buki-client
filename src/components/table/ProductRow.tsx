@@ -85,13 +85,13 @@ const ProductRow = ({ product, index }: any) => {
                         product.categories.map((cat: any) => (
                             <span
                                 key={cat.id}
-                                className="px-2 py-0.5 text-xs font-semibold bg-blue-50  rounded-md"
+                                className="px-2 py-0.5 text-sm bg-blue-50  rounded-md"
                             >
                                 {cat.category?.name}
                             </span>
                         ))
                     ) : (
-                        <span className="text-[15px] text-slate-400">No Categories</span>
+                        <span className="text-slate-400 text-sm">No Categories</span>
                     )}
                 </div>
             </td>
@@ -101,7 +101,7 @@ const ProductRow = ({ product, index }: any) => {
                     product.subCategories.map((sub: any) => (
                         <span
                             key={sub.id}
-                            className="px-2 py-0.5 text-[15px] font-semibold  bg-blue-50 rounded-md"
+                            className="px-2 py-0.5 text-sm  bg-blue-50 rounded-md"
                         >
                             {sub.subCategory?.name}
                         </span>

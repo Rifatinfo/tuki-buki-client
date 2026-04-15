@@ -14,6 +14,7 @@ import { serverFetch } from "@/lib/server-fetch"
 import ImageUploadSection from "./ImageUploadSection"
 import CategoriesSection from "./CategoriesSection"
 import Spinner from "@/components/shared/Spinner"
+import Swal from "sweetalert2";
 
 
 export default function ProductAddPage() {
@@ -47,30 +48,95 @@ export default function ProductAddPage() {
   });
 
   // ==================== Discount ======================//
-  
+
   // console.log("discount", discount);
 
   const validateForm = () => {
-    if (!basicDetails.name) {
-      Toast.fire({ icon: "warning", title: "Product Name is required!" });
+    if (!basicDetails.name?.trim()) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Field",
+        text: "Product Name is required!",
+      });
       return false;
     }
+
     if (!basicDetails.regularPrice) {
-      Toast.fire({ icon: "warning", title: "Regular Price is required!" });
+      Swal.fire({
+        icon: "error",
+        title: "Missing Field",
+        text: "Regular Price is required!",
+      });
       return false;
     }
-    if (!basicDetails.sku) {
-      Toast.fire({ icon: "warning", title: "SKU is required!" });
+
+    if (!basicDetails.sku?.trim()) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Field",
+        text: "SKU is required!",
+      });
       return false;
     }
-    // Optional: Stock quantity >= 0
+
     if (basicDetails.stockQuantity < 0) {
-      Toast.fire({ icon: "warning", title: "Stock Quantity cannot be negative!" });
+      Swal.fire({
+        icon: "error",
+        title: "Invalid Stock",
+        text: "Stock Quantity cannot be negative!",
+      });
       return false;
     }
-    // Optional: Short description
-    if (!basicDetails.shortDescription) {
-      Toast.fire({ icon: "warning", title: "Short Description is required!" });
+
+    if (!basicDetails.shortDescription?.trim()) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Field",
+        text: "Short Description is required!",
+      });
+      return false;
+    }
+
+    //========= Thumbnail required ============//
+    if (!thumbnailImage) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Thumbnail",
+        text: "Please upload a thumbnail image!",
+      });
+      return false;
+    }
+
+    //============== Gallery required (at least 1 image) ==========//
+    if (!galleryImages || galleryImages.length === 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Gallery Images",
+        text: "Please upload at least one gallery image!",
+      });
+      return false;
+    }
+
+    //============= Category required ==========================//
+    if (!categoryPayload.categories || categoryPayload.categories.length === 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Category",
+        text: "Please select at least one category!",
+      });
+      return false;
+    }
+
+    // ============= Subcategory required =====================//
+    if (
+      !categoryPayload.subCategories ||
+      categoryPayload.subCategories.length === 0
+    ) {
+      Swal.fire({
+        icon: "error",
+        title: "Missing Subcategory",
+        text: "Please select at least one subcategory!",
+      });
       return false;
     }
     return true;
@@ -127,7 +193,7 @@ export default function ProductAddPage() {
         })),
 
         additionalInformation: additionalInfo,
-        
+
       };
 
 
