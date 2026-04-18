@@ -323,3 +323,7 @@ const CategoriesSection = ({ onChange }: Props) => {
 }
 
 export default CategoriesSection;
+
+
+
+
