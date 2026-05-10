@@ -47,44 +47,79 @@ const productPage = () => {
         'Above ₹20,000',
     ]
 
-    const products = [
-  {
-    id: 1,
-    name: 'Crimson Red Muslin Saree',
-    price: 'TK 12,999',
-    image1:
-      'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975769/0660000105971_aj9z3s.webp',
-    image2:
-      'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975767/0430000121008_zq6vso.webp',
-  },
-  {
-    id: 2,
-    name: 'Midnight Bloom Drape',
-    price: 'TK 14,500',
-    image1:
-      'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975765/0660000105903_uwcy9g.webp',
-    image2:
-      'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975763/0550000165231_fmdfjm.webp',
-  },
-  {
-    id: 3,
-    name: 'Ivory Gold Threadwork',
-    price: 'TK 22,000',
-    image1:
-      'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975767/0430000121008_zq6vso.webp',
-    image2:
-      'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975769/0660000105971_aj9z3s.webp',
-  },
-  {
-    id: 4,
-    name: 'Emerald Forest Silk',
-    price: 'TK 6,450',
-    image1:
-      'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975763/0550000165231_fmdfjm.webp',
-    image2:
-      'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975765/0660000105903_uwcy9g.webp',
-  }
-]
+// const products: Product[] = [
+//   {
+//     id: 1,
+//     name: 'Crimson Red Muslin Saree',
+//     slug: 'crimson-red-muslin-saree',
+//     price: 'TK 12,999',
+//     regularPrice: 12999,
+//     thumbnailImage:
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975769/0660000105971_aj9z3s.webp',
+//     images: [
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975769/0660000105971_aj9z3s.webp',
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975767/0430000121008_zq6vso.webp',
+//     ],
+//     image1:
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975769/0660000105971_aj9z3s.webp',
+//     image2:
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975767/0430000121008_zq6vso.webp',
+//   },
+
+//   {
+//     id: 2,
+//     name: 'Midnight Bloom Drape',
+//     slug: 'midnight-bloom-drape',
+//     price: 'TK 14,500',
+//     regularPrice: 14500,
+//     thumbnailImage:
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975765/0660000105903_uwcy9g.webp',
+//     images: [
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975765/0660000105903_uwcy9g.webp',
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975763/0550000165231_fmdfjm.webp',
+//     ],
+//     image1:
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975765/0660000105903_uwcy9g.webp',
+//     image2:
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975763/0550000165231_fmdfjm.webp',
+//   },
+
+//   {
+//     id: 3,
+//     name: 'Ivory Gold Threadwork',
+//     slug: 'ivory-gold-threadwork',
+//     price: 'TK 22,000',
+//     regularPrice: 22000,
+//     thumbnailImage:
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975767/0430000121008_zq6vso.webp',
+//     images: [
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975767/0430000121008_zq6vso.webp',
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975769/0660000105971_aj9z3s.webp',
+//     ],
+//     image1:
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975767/0430000121008_zq6vso.webp',
+//     image2:
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975769/0660000105971_aj9z3s.webp',
+//   },
+
+//   {
+//     id: 4,
+//     name: 'Emerald Forest Silk',
+//     slug: 'emerald-forest-silk',
+//     price: 'TK 6,450',
+//     regularPrice: 6450,
+//     thumbnailImage:
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975763/0550000165231_fmdfjm.webp',
+//     images: [
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975763/0550000165231_fmdfjm.webp',
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975765/0660000105903_uwcy9g.webp',
+//     ],
+//     image1:
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975763/0550000165231_fmdfjm.webp',
+//     image2:
+//       'https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975765/0660000105903_uwcy9g.webp',
+//   },
+// ];
     // --- COMPONENTS ---
     const Accordion = ({
         title,
@@ -170,12 +205,12 @@ const productPage = () => {
                 </div>
             </div>
 
-            {/* Product Grid */}
+            {/* Product Grid
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-8 sm:gap-y-16 mt-10">
                 {products.map((product, idx) => (
                     <ProductCard key={product.id} product={product} index={idx} />
                 ))}
-            </div>
+            </div> */}
 
             <AnimatePresence>
                 {isDrawerOpen && (

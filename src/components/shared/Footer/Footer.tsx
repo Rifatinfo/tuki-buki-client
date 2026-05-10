@@ -139,7 +139,7 @@ export function Footer() {
         </div>
 
         {/* Copyright Bar */}
-        <div className="border-t border-gray-100 bg-gray-50">
+        {/* <div className="border-t border-gray-100 bg-gray-50">
           <div className="max-w-7xl mx-auto px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-2">
             <p className="text-xs text-gray-400">
               © 2026 Tuki Buki. All rights reserved.
@@ -165,7 +165,7 @@ export function Footer() {
               </a>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
 
       {/* ==================== MOBILE FOOTER ==================== */}

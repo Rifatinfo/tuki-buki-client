@@ -5,7 +5,7 @@ import { ImageGallery } from "./ImageGallery";
 import { AccordionSection } from "./AccordionSection";
 
 const PRODUCT_IMAGES = [
-  "https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975769/0660000105971_aj9z3s.webp",
+  "https://images.unsplash.com/photo-1560343090-f0409e92791a?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTZ8fHByb2R1Y3R8ZW58MHx8MHx8fDA%3D",
   "https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975767/0430000121008_zq6vso.webp",
   "https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975765/0660000105903_uwcy9g.webp",
   "https://res.cloudinary.com/dgp5rqeqh/image/upload/v1772975763/0550000165231_fmdfjm.webp",
