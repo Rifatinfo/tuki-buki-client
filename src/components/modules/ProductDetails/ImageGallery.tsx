@@ -8,6 +8,7 @@ interface ImageGalleryProps {
 }
 
 export function ImageGallery({ images }: ImageGalleryProps) {
+    console.log("Image : ", images);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isHovering, setIsHovering] = useState(false);
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -87,6 +88,7 @@ export function ImageGallery({ images }: ImageGalleryProps) {
 
                     <Image
                         fill
+                        unoptimized
                         src={images[currentIndex]}
                         alt={`Product view ${currentIndex + 1}`}
                         className="object-cover object-center"

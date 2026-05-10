@@ -6,7 +6,7 @@ import { FeaturedCategories } from "@/components/modules/home/category/FeaturedC
 import { EidCollectionSlider } from "@/components/modules/home/collection/EidCollectionSlider";
 import { HeroSlider } from "@/components/modules/home/hero/HeroSlider";
 import HeroSliderProduct from "@/components/modules/home/HeroSlider/HeroSliderProduct";
-import ProductDetails from "@/components/modules/ProductDetails/ProductDetails";
+// import ProductDetails from "@/components/modules/ProductDetails/ProductDetails";
 import Head from "next/head";
 
 export default function Home() {
@@ -28,7 +28,7 @@ export default function Home() {
         {/* <HomeSlider/> */}
         <HeroSliderProduct/>
         <EidCollectionSlider/>
-        <ProductDetails/>
+        {/* <ProductDetails/> */}
       </main>
     </>
   );
