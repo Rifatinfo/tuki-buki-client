@@ -86,8 +86,7 @@ export function ImageGallery({ images }: ImageGalleryProps) {
                 >
 
                     <Image
-                        height={450}
-                        width={400}
+                        fill
                         src={images[currentIndex]}
                         alt={`Product view ${currentIndex + 1}`}
                         className="object-cover object-center"

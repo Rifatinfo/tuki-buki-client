@@ -30,7 +30,7 @@
     ".next/dev/types/**/*.ts",
     "**/*.mts",
     "global.d.ts"
-  ],
+, "src/components/modules/home/category/ElegantProductShowcase.jsx"  ],
   "exclude": ["node_modules"]
 }
 
