@@ -84,7 +84,12 @@ useEffect(() => {
     ? calcDiscount(product.regularPrice, product.salePrice)
     : null;
 
-  const href = `/${category}${subCategory ? `/${subCategory}` : ""}/${product.slug}`;
+   //  always include subCategory in URL if available
+    const href = subCategory
+        ? `/${category}/product/${subCategory}/${product.slug}`
+        : `/${category}/product/${product.slug}`;
+
+
 
   return (
     <motion.div
