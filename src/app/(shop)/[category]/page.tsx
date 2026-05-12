@@ -13,14 +13,17 @@ import { Suspense } from "react";
 
 export interface PageProps {
     params: Promise<{
-        category: string
+        category: string;
     }>;
     searchParams: Promise<{
         page?: string;
         limit?: string;
-        sortBy?: string
-        sortOrder?: string
-    }>
+        sortBy?: string;
+        sortOrder?: string;
+        color?: string;        // ✅ added
+        priceRange?: string;   // ✅ added
+        stockStatus?: string;  // ✅ added
+    }>;
 }
 
 
