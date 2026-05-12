@@ -71,10 +71,11 @@ const CategoryPage = async ({ params, searchParams }: PageProps) => {
     const totalPages = Math.max(1, Math.ceil(total / limit));
 
     return (
-        <div className="mt-30">
+        <div className="mt-16">
             <div className="space-y-6">
                 
                 <ProductSorting total={total} />
+  
 
                 {products.length === 0 ? (
                     <div className="flex flex-col items-center justify-center  text-center ">
