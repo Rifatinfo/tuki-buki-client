@@ -12,6 +12,8 @@ import { MenuCategory, menuData } from '@/components/data/menuData'
 import { MegaMenu } from './MegaMenu'
 import { MobileMenu } from './MobileMenu'
 import Link from 'next/link';
+import { useCart } from '@/providers/CartProvider';
+import { useWishlist } from '@/providers/WishlistProvider';
 
 type HeaderProps = {
   sidebarOpen: boolean;
@@ -25,10 +27,17 @@ export function Header({
   darkMode,
   onToggleTheme,
 }: HeaderProps) {
+  const { cart } = useCart();
+    const { wishlist } = useWishlist();
   const [activeCategory, setActiveCategory] = useState<MenuCategory | null>(
     null,
   )
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+    const totalItems = cart.reduce(
+    (acc, item) => acc + item.quantity,
+    0
+  );
+  const totalWishlistItems =  wishlist.length;
   return (
     <>
       <header
@@ -94,7 +103,7 @@ export function Header({
               <a href="#" className="relative text-gray-900 hover:text-[#E8731A] transition-colors" aria-label="Wishlist">
                 <HeartIcon className="w-6 h-6" strokeWidth={2} />
                 <span className="absolute -top-2 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-[#E8731A] rounded-full">
-                  3
+                  {totalWishlistItems}
                 </span>
               </a>
 
@@ -102,7 +111,7 @@ export function Header({
               <a href="#" className="relative text-gray-900 hover:text-[#E8731A] transition-colors" aria-label="Shopping Bag">
                 <ShoppingCart className="w-6 h-6" strokeWidth={2} />
                 <span className="absolute -top-2 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-[#E8731A] rounded-full">
-                  5
+                  {totalItems}
                 </span>
               </a>
             </div>
@@ -127,3 +136,4 @@ export function Header({
     </>
   )
 }
+

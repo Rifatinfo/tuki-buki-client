@@ -17,10 +17,13 @@ export interface PageProps {
         subCategory: string;
     }>;
     searchParams: Promise<{
-        page?: string;
+       page?: string;
         limit?: string;
         sortBy?: string;
         sortOrder?: string;
+        color?: string;        // ✅ added
+        priceRange?: string;   // ✅ added
+        stockStatus?: string;  // ✅ added
     }>
 }
 
@@ -66,6 +69,7 @@ const SubCategoryPage = async ({ params, searchParams }: PageProps) => {
     console.log("Response : ", response);
     
     const products = response?.data ?? [];
+    console.log("product : ", products);
     const total = response?.meta?.total ?? 0;
     const limit = Number(response?.meta?.limit) || 12;
     const currentPage = Number(response?.meta?.page) || 1;
