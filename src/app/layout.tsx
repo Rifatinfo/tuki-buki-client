@@ -4,6 +4,7 @@ import "./globals.css";
 import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
 import LoginSuccessToast from "@/components/modules/home/Auth/LoginSuccessToast";
+import { Providers } from "@/providers/providers";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,7 +36,9 @@ export default function RootLayout({
           defaultTheme="light"
           disableTransitionOnChange
         >
-          {children}
+         <Providers>
+           {children}
+         </Providers>
         </ThemeProvider>
         <Suspense fallback={null}>
           <LoginSuccessToast />

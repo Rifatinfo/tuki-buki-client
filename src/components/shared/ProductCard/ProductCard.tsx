@@ -8,6 +8,8 @@ import { Heart, Eye, ShoppingCart  } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import ProductViewModal from "../ProductViewModal";
+import { useCart } from "@/providers/CartProvider";
+import { useWishlist } from "@/providers/WishlistProvider";
 
 // --- Types ---
 interface ProductImage {
@@ -44,6 +46,17 @@ function calcDiscount(regular: number, sale: number) {
 
 
 const ProductCard = ({ product, index, category, subCategory }: ProductCardProps) => {
+  const { addToCart } = useCart();
+  const {
+    addToWishlist,
+    removeFromWishlist,
+    isWishlisted,
+  } = useWishlist();
+
+  const wishlist = isWishlisted(
+    product.id
+  );
+
   console.log("Product", product);
   const [openView, setOpenView] = useState(false);
 
@@ -132,19 +145,54 @@ useEffect(() => {
 
             {/* Wishlist */}
             <button
-              onClick={(e) => {
-                e.preventDefault();
-                setWishlisted((prev) => !prev);
-              }}
-              className="p-2 rounded-full bg-white/70 backdrop-blur-md hover:bg-white shadow-sm cursor-pointer"
-              aria-label="Add to wishlist"
-            >
-              <Heart
-                size={18}
-                strokeWidth={1.5}
-                className={wishlisted ? "fill-black " : "text-gray-600"}
-              />
-            </button>
+                onClick={(e) => {
+                  e.preventDefault();
+
+                  if (
+                    wishlist
+                  ) {
+                    removeFromWishlist(
+                      product.id
+                    );
+                  } else {
+                    addToWishlist({
+                      id: product.id,
+                      name:
+                        product.name,
+                      slug:
+                        product.slug,
+                      sku:
+                        product.sku,
+                      thumbnailImage:
+                        product.thumbnailImage,
+                      regularPrice:
+                        product.regularPrice,
+                      salePrice:
+                        product.salePrice,
+                      stockStatus:
+                        product.stockStatus,
+                    });
+                  }
+                }}
+                className="
+                  p-2 rounded-full
+                  bg-white/70
+                  backdrop-blur-md
+                  hover:bg-white
+                  shadow-sm
+                  cursor-pointer
+                "
+              >
+                <Heart
+                  size={18}
+                  strokeWidth={1.5}
+                  className={
+                    wishlisted
+                      ? "fill-black text-black"
+                      : "text-gray-600"
+                  }
+                />
+              </button>
 
             {/* Quick View */}
             <button
@@ -158,17 +206,52 @@ useEffect(() => {
               <Eye size={18} strokeWidth={1.5} className="text-gray-600" />
             </button>
 
-            {/* Add to Cart */}
-            <button
-              onClick={(e) => {
-                e.preventDefault();
-                console.log("Add to cart");
-              }}
-              className="p-2 rounded-full bg-white/70 backdrop-blur-md hover:bg-white shadow-sm cursor-pointer"
-              aria-label="Add to cart"
-            >
-              <ShoppingCart size={18} strokeWidth={1.5} className="text-gray-600" />
-            </button>
+            {/*==================== Add to Cart =======================*/}
+          <button
+                onClick={(e) => {
+                  e.preventDefault();
+
+                 
+
+                  addToCart({
+                    id: product.id,
+                    name: product.name,
+                    slug: product.slug,
+                    sku: product.sku,
+
+                    thumbnailImage:
+                      product.thumbnailImage,
+
+                    regularPrice:
+                      product.regularPrice,
+
+                    salePrice:
+                      product.salePrice,
+
+                    quantity: 1,
+
+                    stockStatus:
+                      product.stockStatus,
+                  });
+                }}
+               
+                className="
+                  p-2 rounded-full
+                  bg-white/70
+                  backdrop-blur-md
+                  hover:bg-white
+                  shadow-sm
+                  cursor-pointer
+                  disabled:opacity-50
+                  disabled:cursor-not-allowed
+                "
+              >
+                <ShoppingCart
+                  size={18}
+                  strokeWidth={1.5}
+                  className="text-gray-600"
+                />
+              </button>
           </div>
 
           {/* Primary Image */}
