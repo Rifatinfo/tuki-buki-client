@@ -1,19 +1,20 @@
 "use client";
-import { useState } from 'react'
-import { AnimatePresence } from 'framer-motion'
+import { useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import {
   UserIcon,
   HeartIcon,
   MenuIcon,
   Search,
   ShoppingCart,
-} from 'lucide-react'
-import { MenuCategory, menuData } from '@/components/data/menuData'
-import { MegaMenu } from './MegaMenu'
-import { MobileMenu } from './MobileMenu'
-import Link from 'next/link';
-import { useCart } from '@/providers/CartProvider';
-import { useWishlist } from '@/providers/WishlistProvider';
+} from "lucide-react";
+import { MenuCategory, menuData } from "@/components/data/menuData";
+import { MegaMenu } from "./MegaMenu";
+import { MobileMenu } from "./MobileMenu";
+import Link from "next/link";
+import { useCart } from "@/providers/CartProvider";
+import { useWishlist } from "@/providers/WishlistProvider";
+import { useCartDrawer } from "@/providers/CartDrawerProvider";
 
 type HeaderProps = {
   sidebarOpen: boolean;
@@ -27,17 +28,20 @@ export function Header({
   darkMode,
   onToggleTheme,
 }: HeaderProps) {
+  const [mounted, setMounted] = useState(false);
   const { cart } = useCart();
-    const { wishlist } = useWishlist();
+  const { wishlist } = useWishlist();
+  const { openDrawer } = useCartDrawer();
   const [activeCategory, setActiveCategory] = useState<MenuCategory | null>(
     null,
-  )
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-    const totalItems = cart.reduce(
-    (acc, item) => acc + item.quantity,
-    0
   );
-  const totalWishlistItems =  wishlist.length;
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+  const totalWishlistItems = wishlist.length;
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   return (
     <>
       <header
@@ -75,7 +79,7 @@ export function Header({
                 <button
                   key={category.name}
                   onMouseEnter={() => setActiveCategory(category)}
-                  className={`h-full flex items-center text-sm font-medium tracking-wide uppercase border-b-2 transition-colors ${activeCategory?.name === category.name ? 'border-[#E8731A] text-[#E8731A]' : 'border-transparent text-gray-900 hover:text-[#E8731A]'}`}
+                  className={`h-full flex items-center text-sm font-medium tracking-wide uppercase border-b-2 transition-colors ${activeCategory?.name === category.name ? "border-[#E8731A] text-[#E8731A]" : "border-transparent text-gray-900 hover:text-[#E8731A]"}`}
                 >
                   {category.name}
                 </button>
@@ -84,7 +88,6 @@ export function Header({
 
             {/*===================== Right Icons ====================*/}
             <div className="flex items-center justify-end gap-2 sm:gap-4 flex-1 lg:flex-none">
-
               <a
                 href="#"
                 className="text-gray-900 hover:text-[#E8731A] transition-colors"
@@ -100,20 +103,33 @@ export function Header({
                 <UserIcon className="w-6 h-6" strokeWidth={2} />
               </a>
               {/* Wishlist Icon with count */}
-              <a href="#" className="relative text-gray-900 hover:text-[#E8731A] transition-colors" aria-label="Wishlist">
+              <a
+                href="#"
+                className="relative text-gray-900 hover:text-[#E8731A] transition-colors"
+                aria-label="Wishlist"
+              >
                 <HeartIcon className="w-6 h-6" strokeWidth={2} />
                 <span className="absolute -top-2 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-[#E8731A] rounded-full">
                   {totalWishlistItems}
                 </span>
               </a>
 
+              {/*==================== Shopping Bag Icon with count ===================*/}
               {/* Shopping Bag Icon with count */}
-              <a href="#" className="relative text-gray-900 hover:text-[#E8731A] transition-colors" aria-label="Shopping Bag">
+
+              <button
+                onClick={openDrawer}
+                className="relative text-gray-900 hover:text-[#E8731A] transition-colors"
+                aria-label="Shopping Bag"
+              >
                 <ShoppingCart className="w-6 h-6" strokeWidth={2} />
-                <span className="absolute -top-2 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-[#E8731A] rounded-full">
-                  {totalItems}
-                </span>
-              </a>
+
+                {mounted && (
+                  <span className="absolute -top-2 -right-2 inline-flex items-center justify-center px-1.5 py-0.5 text-xs font-bold leading-none text-white bg-[#E8731A] rounded-full">
+                    {totalItems}
+                  </span>
+                )}
+              </button>
             </div>
           </div>
         </div>
@@ -134,6 +150,5 @@ export function Header({
         onClose={() => setIsMobileMenuOpen(false)}
       />
     </>
-  )
+  );
 }
-

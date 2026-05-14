@@ -1,8 +1,10 @@
 "use client";
 
+import { CartDrawerProvider } from "./CartDrawerProvider";
 import { CartProvider } from "./CartProvider";
 
 import { WishlistProvider } from "./WishlistProvider";
+
 
 export function Providers({
   children,
@@ -12,7 +14,9 @@ export function Providers({
   return (
     <WishlistProvider>
       <CartProvider>
-        {children}
+        <CartDrawerProvider>
+          {children}
+        </CartDrawerProvider>
       </CartProvider>
     </WishlistProvider>
   );

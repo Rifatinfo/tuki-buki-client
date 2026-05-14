@@ -5,6 +5,7 @@ import { ThemeProvider } from "next-themes";
 import { Suspense } from "react";
 import LoginSuccessToast from "@/components/modules/home/Auth/LoginSuccessToast";
 import { Providers } from "@/providers/providers";
+import CartDrawerClient from "@/components/modules/card/CartDrawerClient";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,6 +39,7 @@ export default function RootLayout({
         >
          <Providers>
            {children}
+           <CartDrawerClient />
          </Providers>
         </ThemeProvider>
         <Suspense fallback={null}>

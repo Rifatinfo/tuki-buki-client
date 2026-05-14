@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { HeartIcon, ShoppingBag, Zap } from "lucide-react";
+import { HeartIcon, Minus, Plus, ShoppingBag, Zap } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import Swal from "sweetalert2";
 import { Product } from "@/types/product";
 import { ImageGallery } from "./ImageGallery";
 import { AccordionSection } from "./AccordionSection";
@@ -15,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useCart } from "@/providers/CartProvider";
 
 interface ProductDetailsProps {
   product: Product;
@@ -35,8 +37,9 @@ const ProductDetails = ({
   category,
   subCategory,
 }: ProductDetailsProps) => {
+  const { addToCart } = useCart();
+
   const [quantity, setQuantity] = useState(1);
-  const [selectedVariant, setSelectedVariant] = useState("");
   const [wishlisted, setWishlisted] = useState(false);
   const [selectedSize, setSelectedSize] = useState("");
   const [selectedColor, setSelectedColor] = useState("");
@@ -69,6 +72,75 @@ const ProductDetails = ({
   const uniqueColors = [
     ...new Set(product.variants?.map((v) => v.color).filter(Boolean)),
   ] as string[];
+
+  // ======================== Stock Track ========================//
+  const selectedVariant = product.variants.find(
+    (v: any) => v.color === selectedColor && v.size === selectedSize,
+  );
+
+  const stock = selectedVariant?.quantity ?? 0;
+
+  const handleBuyNow = () => {
+    // ================= Size Validation =================
+
+    if (uniqueSizes.length > 0 && !selectedSize) {
+      Swal.fire({
+        icon: "warning",
+        title: "Size Required",
+        text: "Please select a size",
+        confirmButtonColor: "#000",
+      });
+
+      return;
+    }
+
+    // ================= Color Validation =================
+
+    if (uniqueColors.length > 0 && !selectedColor) {
+      Swal.fire({
+        icon: "warning",
+        title: "Color Required",
+        text: "Please select a color",
+        confirmButtonColor: "#000",
+      });
+
+      return;
+    }
+
+    // ================= Out Of Stock =================
+
+    if (product.stockStatus === "OUT_OF_STOCK" || product.stockQuantity === 0) {
+      Swal.fire({
+        icon: "error",
+        title: "Out of Stock",
+        text: "This product is currently unavailable",
+        confirmButtonColor: "#000",
+      });
+
+      return;
+    }
+
+    // ================= Add To Cart =================
+
+    addToCart({
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      sku: product.sku,
+      thumbnailImage: product.thumbnailImage,
+      regularPrice: product.regularPrice,
+      salePrice: product.salePrice,
+      quantity,
+      stockStatus: product.stockStatus,
+      color: selectedColor,
+      stock,
+      size: selectedSize,
+    });
+
+    // ================= Redirect =================
+
+    window.location.href = "/checkout";
+  };
 
   return (
     <div>
@@ -117,10 +189,6 @@ const ProductDetails = ({
                 <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-red-500 to-orange-500 text-white text-xs font-semibold shadow-lg shadow-red-500/20">
                   Out of Stock
                 </span>
-              ) : isLowStock ? (
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-50 text-orange-600 border border-orange-200">
-                  Only {product.stockQuantity} left
-                </span>
               ) : (
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-200">
                   In Stock
@@ -140,19 +208,55 @@ const ProductDetails = ({
                 <label className="text-sm font-bold">Quantity</label>
                 <div className="flex items-center border border-gray-300 w-32 h-11">
                   <button
-                    onClick={() => setQuantity((p) => (p > 1 ? p - 1 : 1))}
+                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
                     className="w-10 h-full flex items-center justify-center text-gray-500 hover:text-black"
                   >
-                    −
+                    <Minus className="h-4 w-4" />
                   </button>
                   <span className="flex-1 text-center text-sm font-medium">
                     {quantity}
                   </span>
                   <button
-                    onClick={() => setQuantity((p) => p + 1)}
+                    onClick={() => {
+                      if (!selectedColor) {
+                        Swal.fire({
+                          icon: "warning",
+                          title: "Please select a color first",
+                        });
+                        return;
+                      }
+
+                      if (!selectedSize) {
+                        Swal.fire({
+                          icon: "warning",
+                          title: "Please select a size first",
+                        });
+                        return;
+                      }
+
+                      if (stock <= 0) {
+                        Swal.fire({
+                          icon: "error",
+                          title: "Out of stock",
+                        });
+                        return;
+                      }
+
+                      setQuantity((prev) => {
+                        if (prev < stock) return prev + 1;
+
+                        Swal.fire({
+                          icon: "error",
+                          title: "LIMIT EXCEEDED",
+                          text: `Only ${stock} item(s) available`,
+                        });
+
+                        return prev;
+                      });
+                    }}
                     className="w-10 h-full flex items-center justify-center text-gray-500 hover:text-black"
                   >
-                    +
+                    <Plus className="h-4 w-4" />
                   </button>
                 </div>
               </div>
@@ -281,7 +385,56 @@ const ProductDetails = ({
             </div>
             <div className="py-2 md:py-0">
               <button
-                // onClick={handleAddToBag}
+                onClick={() => {
+                  if (!selectedColor) {
+                    Swal.fire({
+                      icon: "warning",
+                      title: "Please select a color first",
+                    });
+                    return;
+                  }
+                  if (!selectedSize) {
+                    Swal.fire({
+                      icon: "warning",
+                      title: "Please select a size first",
+                    });
+                    return;
+                  }
+                  if (stock === 0) {
+                    Swal.fire({
+                      icon: "error",
+                      title: "OUT OF STOCK",
+                      text: "This product is currently unavailable",
+                    });
+                    return;
+                  }
+                 
+
+                  addToCart({
+                    id: product.id,
+                    name: product.name,
+                    slug: product.slug,
+                    sku: product.sku,
+                    thumbnailImage: product.thumbnailImage,
+                    regularPrice: product.regularPrice,
+                    salePrice: product.salePrice,
+                    quantity,
+                    stockStatus: product.stockStatus,
+                    color: selectedColor,
+                    stock,
+                    size: selectedSize,
+                  });
+                  
+
+                   if (quantity > stock) {
+                    Swal.fire({
+                      icon: "error",
+                      title: "LIMIT EXCEEDED",
+                      text: `Only ${stock} item(s) available`,
+                    });
+                    return;
+                  }
+                }}
                 disabled={isOutOfStock}
                 className="flex-1 w-full md:hidden bg-black cursor-pointer text-white h-12 font-bold text-sm uppercase tracking-wide transition-colors  disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
@@ -291,7 +444,55 @@ const ProductDetails = ({
             </div>
             <div className="flex items-center gap-3 w-full">
               <button
-                // onClick={handleAddToBag}
+                onClick={() => {
+                  if (!selectedColor) {
+                    Swal.fire({
+                      icon: "warning",
+                      title: "Please select a color first",
+                    });
+                    return;
+                  }
+                  if (!selectedSize) {
+                    Swal.fire({
+                      icon: "warning",
+                      title: "Please select a size first",
+                    });
+                    return;
+                  }
+                  if (stock === 0) {
+                    Swal.fire({
+                      icon: "error",
+                      title: "OUT OF STOCK",
+                      text: "This product is currently unavailable",
+                    });
+                    return;
+                  }
+                 
+
+                  addToCart({
+                    id: product.id,
+                    name: product.name,
+                    slug: product.slug,
+                    sku: product.sku,
+                    thumbnailImage: product.thumbnailImage,
+                    regularPrice: product.regularPrice,
+                    salePrice: product.salePrice,
+                    quantity,
+                    stockStatus: product.stockStatus,
+                    color: selectedColor,
+                    stock,
+                    size: selectedSize,
+                  });
+                  
+                   if (quantity > stock) {
+                    Swal.fire({
+                      icon: "error",
+                      title: "LIMIT EXCEEDED",
+                      text: `Only ${stock} item(s) available`,
+                    });
+                    return;
+                  }
+                }}
                 disabled={isOutOfStock}
                 className={`w-full hidden md:flex-1 h-12 md:flex items-center justify-center gap-2 
               bg-black text-white font-bold text-sm uppercase tracking-wide 
@@ -304,6 +505,7 @@ const ProductDetails = ({
               </button>
 
               <button
+                onClick={handleBuyNow}
                 disabled={isOutOfStock}
                 className="flex-1 bg-white text-black border border-black h-12 font-bold text-sm uppercase tracking-wide cursor-pointer transition-colors disabled:cursor-not-allowed  flex items-center justify-center gap-2"
               >
