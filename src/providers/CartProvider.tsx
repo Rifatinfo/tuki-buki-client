@@ -7,6 +7,7 @@ import {
   useState,
   ReactNode,
 } from "react";
+import Swal from "sweetalert2";
 
 // ================= Types =================
 
@@ -19,6 +20,9 @@ export interface CartItem {
   regularPrice: number;
   salePrice: number;
   quantity: number;
+  color?: string;
+  size?: string;
+  stock: number;
   stockStatus: string;
 }
 
@@ -26,13 +30,9 @@ interface CartContextType {
   cart: CartItem[];
 
   addToCart: (product: CartItem) => void;
-
-  removeFromCart: (id: string) => void;
-
-  increaseQuantity: (id: string) => void;
-
-  decreaseQuantity: (id: string) => void;
-
+  increaseQuantity: (id: string, color?: string, size?: string) => void;
+  decreaseQuantity: (id: string, color?: string, size?: string) => void;
+  removeFromCart: (id: string, color?: string, size?: string) => void;
   clearCart: () => void;
 }
 
@@ -42,11 +42,7 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 
 // ================= Provider =================
 
-export const CartProvider = ({
-  children,
-}: {
-  children: ReactNode;
-}) => {
+export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
 
   // ================= Load Cart =================
@@ -68,74 +64,103 @@ export const CartProvider = ({
   // ================= Add To Cart =================
 
   const addToCart = (product: CartItem) => {
-    setCart((prev) => {
-      const existingProduct = prev.find(
-        (item) => item.id === product.id
-      );
+  setCart((prev) => {
+    const existingProduct = prev.find(
+      (item) =>
+        item.id === product.id &&
+        item.color === product.color &&
+        item.size === product.size,
+    );
 
-      // If already exists -> increase quantity
-      if (existingProduct) {
-        return prev.map((item) =>
-          item.id === product.id
-            ? {
-                ...item,
-                quantity: item.quantity + 1,
-              }
-            : item
-        );
+    // ================= EXISTING PRODUCT =================
+    if (existingProduct) {
+      const newQty = existingProduct.quantity + product.quantity;
+
+      // 🚨 VALIDATION: exceed stock
+      if (newQty > product.stock) {
+        Swal.fire({
+          icon: "error",
+          title: "LIMIT EXCEEDED",
+          text: `Only ${product.stock} item(s) available`,
+        });
+        return prev; // ❌ no update
       }
 
-      // New product
-      return [
-        ...prev,
-        {
-          ...product,
-          quantity: 1,
-        },
-      ];
-    });
-  };
+      return prev.map((item) => {
+        if (
+          item.id === product.id &&
+          item.color === product.color &&
+          item.size === product.size
+        ) {
+          return {
+            ...item,
+            quantity: newQty,
+          };
+        }
+        return item;
+      });
+    }
 
+    // ================= NEW PRODUCT =================
+    if (product.quantity > product.stock) {
+      Swal.fire({
+        icon: "error",
+        title: "LIMIT EXCEEDED",
+        text: `Only ${product.stock} item(s) available`,
+      });
+      return prev; // ❌ block add
+    }
+
+    return [...prev, product];
+  });
+};
   // ================= Remove =================
 
-  const removeFromCart = (id: string) => {
+  const removeFromCart = (id: string, color?: string, size?: string) => {
     setCart((prev) =>
-      prev.filter((item) => item.id !== id)
+      prev.filter(
+        (item) =>
+          !(item.id === id && item.color === color && item.size === size),
+      ),
     );
   };
 
-  // ================= Increase Quantity =================
+  /*===================== Update quantity inside cart =====================*/
 
-  const increaseQuantity = (id: string) => {
+  // ================= Increase Quantity =================
+  const increaseQuantity = (id: string, color?: string, size?: string) => {
     setCart((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? {
-              ...item,
-              quantity: item.quantity + 1,
-            }
-          : item
-      )
+      prev.map((item) => {
+        if (item.id === id && item.color === color && item.size === size) {
+          if (item.quantity >= item.stock) return item; // 🚫 block increase
+
+          return {
+            ...item,
+            quantity: item.quantity + 1,
+          };
+        }
+        return item;
+      }),
     );
   };
 
   // ================= Decrease Quantity =================
 
-  const decreaseQuantity = (id: string) => {
+  const decreaseQuantity = (id: string, color?: string, size?: string) => {
     setCart((prev) =>
       prev
-        .map((item) =>
-          item.id === id
-            ? {
-                ...item,
-                quantity: item.quantity - 1,
-              }
-            : item
-        )
-        .filter((item) => item.quantity > 0)
+        .map((item) => {
+          if (item.id === id && item.color === color && item.size === size) {
+            return {
+              ...item,
+              quantity: item.quantity - 1,
+            };
+          }
+          return item;
+        })
+        .filter((item) => item.quantity > 0),
     );
   };
-
   // ================= Clear Cart =================
 
   const clearCart = () => {
@@ -164,9 +189,7 @@ export const useCart = () => {
   const context = useContext(CartContext);
 
   if (!context) {
-    throw new Error(
-      "useCart must be used inside CartProvider"
-    );
+    throw new Error("useCart must be used inside CartProvider");
   }
 
   return context;

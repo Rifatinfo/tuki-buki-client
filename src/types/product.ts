@@ -32,6 +32,7 @@ export interface ProductVariant {
   color?: string;
   stock?: number;
   price?: number;
+  quantity: number;
 }
 
 export interface AdditionalInfo {

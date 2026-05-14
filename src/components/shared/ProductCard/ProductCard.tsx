@@ -1,10 +1,8 @@
-
-
 "use client";
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Heart, Eye, ShoppingCart  } from "lucide-react";
+import { Heart, Eye, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import ProductViewModal from "../ProductViewModal";
@@ -18,17 +16,25 @@ interface ProductImage {
   url: string;
 }
 
+interface Variant {
+  id: string;
+  color: string;
+  size: string;
+  quantity: number;
+}
+
 interface Product {
   id: string;
   name: string;
   slug: string;
-  sku : string;
+  sku: string;
   thumbnailImage: string;
   images: ProductImage[];
   regularPrice: number;
   salePrice: number;
   stockStatus: "IN_STOCK" | "OUT_OF_STOCK";
-  stockQuantity : number
+  stockQuantity: number;
+  variants: Variant[];
 }
 
 interface ProductCardProps {
@@ -38,71 +44,72 @@ interface ProductCardProps {
   subCategory?: string;
 }
 
-
-
 function calcDiscount(regular: number, sale: number) {
   return Math.round(((regular - sale) / regular) * 100);
 }
 
-
-const ProductCard = ({ product, index, category, subCategory }: ProductCardProps) => {
+const ProductCard = ({
+  product,
+  index,
+  category,
+  subCategory,
+}: ProductCardProps) => {
   const { addToCart } = useCart();
-  const {
-    addToWishlist,
-    removeFromWishlist,
-    isWishlisted,
-  } = useWishlist();
+  const { addToWishlist, removeFromWishlist, isWishlisted } = useWishlist();
 
-  const wishlist = isWishlisted(
-    product.id
-  );
+  const wishlist = isWishlisted(product.id);
 
   console.log("Product", product);
   const [openView, setOpenView] = useState(false);
+  const [selectedColor, setSelectedColor] = useState<string>(
+    product?.variants?.[0]?.color || "",
+  );
+  const [selectedSize, setSelectedSize] = useState<string>(
+    product?.variants?.[0]?.size || "",
+  );
 
-  const resolveUrl = (url : any) => {
-  if (!url?.trim()) return "/placeholder.png";
+  const resolveUrl = (url: any) => {
+    if (!url?.trim()) return "/placeholder.png";
 
-  return url.startsWith("http")
-    ? url
-    : `${process.env.NEXT_PUBLIC_API_URL}${url}`;
-};
+    return url.startsWith("http")
+      ? url
+      : `${process.env.NEXT_PUBLIC_API_URL}${url}`;
+  };
 
-const productImages = [
-  product?.thumbnailImage,
-  ...(product?.images?.map((img: any) => img.url) || []),
-]
-  .filter(Boolean)
-  .map((img) => resolveUrl(img));
+  const productImages = [
+    product?.thumbnailImage,
+    ...(product?.images?.map((img: any) => img.url) || []),
+  ]
+    .filter(Boolean)
+    .map((img) => resolveUrl(img));
 
-const [isHovered, setIsHovered] = useState(false);
-const [currentImage, setCurrentImage] = useState(0);
-const [wishlisted, setWishlisted] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const [currentImage, setCurrentImage] = useState(0);
+  const [wishlisted, setWishlisted] = useState(false);
 
-useEffect(() => {
-  let interval: NodeJS.Timeout;
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
 
-  if (isHovered && productImages.length > 1) {
-    interval = setInterval(() => {
-      setCurrentImage((prev) => (prev + 1) % productImages.length);
-    }, 1000);
-  } else {
-    setCurrentImage(0);
-  }
+    if (isHovered && productImages.length > 1) {
+      interval = setInterval(() => {
+        setCurrentImage((prev) => (prev + 1) % productImages.length);
+      }, 1000);
+    } else {
+      setCurrentImage(0);
+    }
 
-  return () => clearInterval(interval);
-}, [isHovered, productImages.length]);
+    return () => clearInterval(interval);
+  }, [isHovered, productImages.length]);
 
-  const discount = product.salePrice < product.regularPrice
-    ? calcDiscount(product.regularPrice, product.salePrice)
-    : null;
+  const discount =
+    product.salePrice < product.regularPrice
+      ? calcDiscount(product.regularPrice, product.salePrice)
+      : null;
 
-   //  always include subCategory in URL if available
-    const href = subCategory
-        ? `/${category}/product/${subCategory}/${product.slug}`
-        : `/${category}/product/${product.slug}`;
-
-
+  //  always include subCategory in URL if available
+  const href = subCategory
+    ? `/${category}/product/${subCategory}/${product.slug}`
+    : `/${category}/product/${product.slug}`;
 
   return (
     <motion.div
@@ -116,65 +123,53 @@ useEffect(() => {
       <Link href={href}>
         {/* Image Container */}
         <div className="relative aspect-[3/4] overflow-hidden bg-gray-100 ">
-
           <div className="absolute top-3 left-3 z-20 flex gap-2">
+            {/* Sale Badge */}
+            {discount && (
+              <span className="bg-black text-white font-medium text-[10px] tracking-widest px-2 py-1">
+                -{discount}%
+              </span>
+            )}
 
-          {/* Sale Badge */}
-          {discount && (
-            <span className="bg-black text-white font-medium text-[10px] tracking-widest px-2 py-1">
-              -{discount}%
-            </span>
-          )}
+            {/* Sold Badge */}
+            {(product.stockStatus === "OUT_OF_STOCK" ||
+              product.stockQuantity === 0) && (
+              <span className="bg-black text-white text-[10px] tracking-widest font-medium px-2 py-1 uppercase">
+                Sold
+              </span>
+            )}
+          </div>
 
-          {/* Sold Badge */}
-          {(product.stockStatus === "OUT_OF_STOCK" || product.stockQuantity === 0) && (
-            <span className="bg-black text-white text-[10px] tracking-widest font-medium px-2 py-1 uppercase">
-              Sold
-            </span>
-          )}
-
-      </div>
-
-        {/* Action Buttons */}
-          <div className="absolute top-3 right-3 z-20 flex flex-col gap-2 
+          {/* Action Buttons */}
+          <div
+            className="absolute top-3 right-3 z-20 flex flex-col gap-2 
             opacity-100 sm:opacity-0 
             sm:group-hover:opacity-100 
             translate-y-0 sm:translate-y-2 
             sm:group-hover:translate-y-0 
-            transition-all duration-300">
-
+            transition-all duration-300"
+          >
             {/* Wishlist */}
             <button
-                onClick={(e) => {
-                  e.preventDefault();
+              onClick={(e) => {
+                e.preventDefault();
 
-                  if (
-                    wishlist
-                  ) {
-                    removeFromWishlist(
-                      product.id
-                    );
-                  } else {
-                    addToWishlist({
-                      id: product.id,
-                      name:
-                        product.name,
-                      slug:
-                        product.slug,
-                      sku:
-                        product.sku,
-                      thumbnailImage:
-                        product.thumbnailImage,
-                      regularPrice:
-                        product.regularPrice,
-                      salePrice:
-                        product.salePrice,
-                      stockStatus:
-                        product.stockStatus,
-                    });
-                  }
-                }}
-                className="
+                if (wishlist) {
+                  removeFromWishlist(product.id);
+                } else {
+                  addToWishlist({
+                    id: product.id,
+                    name: product.name,
+                    slug: product.slug,
+                    sku: product.sku,
+                    thumbnailImage: product.thumbnailImage,
+                    regularPrice: product.regularPrice,
+                    salePrice: product.salePrice,
+                    stockStatus: product.stockStatus,
+                  });
+                }
+              }}
+              className="
                   p-2 rounded-full
                   bg-white/70
                   backdrop-blur-md
@@ -182,17 +177,15 @@ useEffect(() => {
                   shadow-sm
                   cursor-pointer
                 "
-              >
-                <Heart
-                  size={18}
-                  strokeWidth={1.5}
-                  className={
-                    wishlisted
-                      ? "fill-black text-black"
-                      : "text-gray-600"
-                  }
-                />
-              </button>
+            >
+              <Heart
+                size={18}
+                strokeWidth={1.5}
+                className={
+                  wishlisted ? "fill-black text-black" : "text-gray-600"
+                }
+              />
+            </button>
 
             {/* Quick View */}
             <button
@@ -207,35 +200,26 @@ useEffect(() => {
             </button>
 
             {/*==================== Add to Cart =======================*/}
-          <button
-                onClick={(e) => {
-                  e.preventDefault();
+            {/* <button
+              onClick={(e) => {
+                e.preventDefault();
 
-                 
+                addToCart({
+                  id: product.id,
+                  name: product.name,
+                  slug: product.slug,
+                  sku: product.sku,
+                  thumbnailImage: product.thumbnailImage,
+                  regularPrice: product.regularPrice,
+                  salePrice: product.salePrice,
+                  quantity: 1,
+                  stockStatus: product.stockStatus,
 
-                  addToCart({
-                    id: product.id,
-                    name: product.name,
-                    slug: product.slug,
-                    sku: product.sku,
-
-                    thumbnailImage:
-                      product.thumbnailImage,
-
-                    regularPrice:
-                      product.regularPrice,
-
-                    salePrice:
-                      product.salePrice,
-
-                    quantity: 1,
-
-                    stockStatus:
-                      product.stockStatus,
-                  });
-                }}
-               
-                className="
+                  color: selectedColor,
+                  size: selectedSize,
+                });
+              }}
+              className="
                   p-2 rounded-full
                   bg-white/70
                   backdrop-blur-md
@@ -245,13 +229,13 @@ useEffect(() => {
                   disabled:opacity-50
                   disabled:cursor-not-allowed
                 "
-              >
-                <ShoppingCart
-                  size={18}
-                  strokeWidth={1.5}
-                  className="text-gray-600"
-                />
-              </button>
+            >
+              <ShoppingCart
+                size={18}
+                strokeWidth={1.5}
+                className="text-gray-600"
+              />
+            </button> */}
           </div>
 
           {/* Primary Image */}
@@ -290,8 +274,6 @@ useEffect(() => {
         setOpen={setOpenView}
       />
     </motion.div>
-
-    
   );
 };
 
