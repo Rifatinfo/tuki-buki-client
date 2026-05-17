@@ -200,42 +200,7 @@ const ProductCard = ({
             </button>
 
             {/*==================== Add to Cart =======================*/}
-            {/* <button
-              onClick={(e) => {
-                e.preventDefault();
-
-                addToCart({
-                  id: product.id,
-                  name: product.name,
-                  slug: product.slug,
-                  sku: product.sku,
-                  thumbnailImage: product.thumbnailImage,
-                  regularPrice: product.regularPrice,
-                  salePrice: product.salePrice,
-                  quantity: 1,
-                  stockStatus: product.stockStatus,
-
-                  color: selectedColor,
-                  size: selectedSize,
-                });
-              }}
-              className="
-                  p-2 rounded-full
-                  bg-white/70
-                  backdrop-blur-md
-                  hover:bg-white
-                  shadow-sm
-                  cursor-pointer
-                  disabled:opacity-50
-                  disabled:cursor-not-allowed
-                "
-            >
-              <ShoppingCart
-                size={18}
-                strokeWidth={1.5}
-                className="text-gray-600"
-              />
-            </button> */}
+  
           </div>
 
           {/* Primary Image */}
