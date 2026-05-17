@@ -28,7 +28,7 @@ export function ImageGallery({ images }: ImageGalleryProps) {
                 setContainerSize({ width, height })
             }
         }
-        updateSize()
+        updateSize();
         window.addEventListener('resize', updateSize)
         return () => window.removeEventListener('resize', updateSize)
     }, [])
